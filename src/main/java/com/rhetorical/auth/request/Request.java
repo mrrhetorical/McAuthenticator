@@ -2,7 +2,6 @@ package com.rhetorical.auth.request;
 
 import com.rhetorical.auth.AuthFile;
 import com.rhetorical.auth.Main;
-import com.sun.istack.internal.NotNull;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -10,7 +9,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -41,7 +39,7 @@ public class Request implements Listener {
 
         Bukkit.getServer().getPluginManager().registerEvents(this, Main.getPlugin());
         this.id  = System.currentTimeMillis();
-        this.key = this.generateKey(6);
+        this.key = this.generateKey();
         this.requester = requester;
         this.requestEmail = requestEmail;
         this.timesUp = false;
@@ -82,19 +80,18 @@ public class Request implements Listener {
         p.setFoodLevel(pHunger);
     }
 
-    @NotNull
-    private String generateKey(int length) {
+    private String generateKey() {
 
         String charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
-        String sb = "";
+        StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < 6; i++) {
             int index = (int) Math.floor((Math.random() * charset.length() - 1) + 1);
-            sb += (charset.charAt(index));
+            sb.append(charset.charAt(index));
         }
 
-        return sb;
+        return sb.toString();
     }
 
     @EventHandler
