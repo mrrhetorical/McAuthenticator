@@ -1,3 +1,27 @@
-prefix: none
-translation:
-  api_key: none
+#SETUP:
+# - You must have the SMTP server set up on the email address that you would like to use. You can set it up on your gmail page.
+# - If you would like to use the provided email, set both of the auth_email, and auth_password fields to 'default'.
+#
+
+#Server name to use in emails.
+server_name: 'McAuthenticator'
+#Authentication email: The email that is used to send authentication messages.
+auth_email: 'default'
+#Authentication password: The password to your email.
+auth_password: 'default'
+#Timeout for log in requests. Sign up is in minutes, whereas log in request is in seconds.
+timeout:
+  sign_up: 600
+  log_in: 120
+#Templates to use for emails.
+#{PLAYER} -> The player name of the person signing in.
+#{SERVER_NAME} -> The name of the server stated by "server_name"
+#{KEY} -> The key that is used for them to sign in. Is randomly generated every time they attempt to sign in to your server.
+template:
+  log_in: '{PLAYER},
+  This is your log in key for {SERVER_NAME}:
+  {KEY}'
+  sign_up: 'Thank you for signing up with {SERVER_NAME}, {PLAYER}.
+  Your confirmation code:
+  {KEY}'
+  subject: '{SERVER_NAME} Two-Factor Authentication'

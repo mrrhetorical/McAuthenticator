@@ -1,12 +1,8 @@
-name: McAuth
-author: Mr_Rhetorical
+name: E-2FA
 version: 1.0
+author: Mr_Rhetorical
 main: com.rhetorical.auth.Main
-description: Make your Minecraft sever extra secure!
 commands:
   auth:
-    description: Base command for McAuth.
-    usage: /<command>
-  mcauth:
-    description: Base command for McAuth.
+    description: Base command for E-2FA
     usage: /<command>
