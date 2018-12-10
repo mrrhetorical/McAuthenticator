@@ -1,8 +1,8 @@
-name: E-2FA
+name: McAuthenticator
 version: 1.0
 author: Mr_Rhetorical
 main: com.rhetorical.auth.Main
 commands:
   auth:
-    description: Base command for E-2FA
+    description: Base command for McAuthenticator
     usage: /<command>

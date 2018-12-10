@@ -43,9 +43,9 @@ public class Main extends JavaPlugin implements Listener {
     public static HashMap<Player, Request> currentRequests = new HashMap<>();
     public static ArrayList<Player> authenticatedPlayers = new ArrayList<>();
 
-    public static String prefix = "" + ChatColor.BOLD + ChatColor.GOLD + "[" + ChatColor.WHITE + "McAuth" + ChatColor.WHITE	+ "]" + ChatColor.RESET;
+    public static String prefix = "" + ChatColor.BOLD + ChatColor.GOLD + "[" + ChatColor.WHITE + "McAuth" + ChatColor.GOLD	+ "]" + ChatColor.RESET + " ";
     public static Plugin getPlugin() {
-        return Bukkit.getServer().getPluginManager().getPlugin("E-2FA");
+        return Bukkit.getServer().getPluginManager().getPlugin("McAuthenticator");
     }
 
     @Override
@@ -73,37 +73,39 @@ public class Main extends JavaPlugin implements Listener {
         if (!label.equalsIgnoreCase("auth"))
             return false;
 
-        if (args.length >= 1) {
-            if (args[0].equalsIgnoreCase("signUp")) {
-            	if (!(sender instanceof Player)) {
-            		sender.sendMessage("");
-            		return true;
+        if (args.length == 2) {
+			if (args[0].equalsIgnoreCase("signUp")) {
+				if (!(sender instanceof Player)) {
+					sender.sendMessage("");
+					return true;
 				}
-            	Player p = (Player) sender;
-                if (AuthFile.getData().contains(p.getName() + ".email")) {
-                    p.sendMessage(prefix + ChatColor.RED + "Can't sign up if you already have an account!");
-                    p.sendMessage(ChatColor.RED + "Please sign in using your existing account's authenticator.");
-                    p.sendMessage(ChatColor.RED + "If you can not access your email, please contact proof that it is your email,");
-                    p.sendMessage(ChatColor.RED + "And contact a server moderator or administrator.");
-                    return true;
-                }
+				Player p = (Player) sender;
+				if (AuthFile.getData().contains(p.getName() + ".email")) {
+					p.sendMessage(prefix + ChatColor.RED + "Can't sign up if you already have an account!");
+					p.sendMessage(ChatColor.RED + "Please sign in using your existing account's authenticator.");
+					p.sendMessage(ChatColor.RED + "If you can not access your email, please contact proof that it is your email,");
+					p.sendMessage(ChatColor.RED + "And contact a server moderator or administrator.");
+					return true;
+				}
 
-                Request r;
-                try {
-                    if (AuthFile.contains(args[1])) {
-                        p.sendMessage(prefix + ChatColor.RED + "There is already an account registered with that email address!");
-                        return true;
-                    }
+				Request r;
+				try {
+					if (AuthFile.contains(args[1])) {
+						p.sendMessage(prefix + ChatColor.RED + "There is already an account registered with that email address!");
+						return true;
+					}
 
-                    r = new Request(p, args[1], Request.RequestType.SIGN_UP);
-                } catch(Exception e) {
-                    p.sendMessage(prefix + ChatColor.RED + "Incorrect format! Correct format: \"/auth signUp {email}\"!");
-                    return true;
-                }
+					r = new Request(p, args[1], Request.RequestType.SIGN_UP);
+				} catch (Exception e) {
+					p.sendMessage(prefix + ChatColor.RED + "Incorrect format! Correct format: \"/auth signUp {email}\"!");
+					return true;
+				}
 
-                currentRequests.put(p, r);
-            } else if (args[0].equalsIgnoreCase("help") && (sender.hasPermission("mcauth.userHelp") || sender.isOp() || sender.hasPermission("mcauth.*"))) {
-            	sender.sendMessage(ChatColor.RED + "--===[ " + ChatColor.GOLD + ChatColor.BOLD + "E-2FA Help" + ChatColor.RESET + ChatColor.RED + " ]===--");
+				currentRequests.put(p, r);
+			}
+		} else if (args.length == 1) {
+        	if (args[0].equalsIgnoreCase("help")) {
+            	sender.sendMessage(ChatColor.RED + "--===[ " + ChatColor.GOLD + ChatColor.BOLD + "McAuth Help" + ChatColor.RESET + ChatColor.RED + " ]===--");
             	sender.sendMessage("" + ChatColor.BOLD + ChatColor.WHITE + "[Page 1 of 1]");
             	sender.sendMessage(ChatColor.GOLD + "'/auth signUp' " + ChatColor.WHITE + "-" + ChatColor.GREEN + " Allows you to sign up for an account on this server.");
             	if (sender.hasPermission("mcauth.*") || sender.isOp()) {
@@ -112,7 +114,12 @@ public class Main extends JavaPlugin implements Listener {
 					return true;
 				}
             	return true;
-			} else if (args[0].equalsIgnoreCase("jail") && (sender.hasPermission("mcauth.setjail") || sender.isOp() || sender.hasPermission("mcauth.*"))) {
+			} else if (args[0].equalsIgnoreCase("jail")) {
+
+        		if (!(sender.hasPermission("mcauth.setjail") || sender.isOp() || sender.hasPermission("mcauth.*"))) {
+					sender.sendMessage(prefix + ChatColor.RED + "I'm sorry, but you don't have permission to do that!");
+					return true;
+				}
 
             	if (!(sender instanceof Player)) {
             		sender.sendMessage(prefix + ChatColor.RED + "You must be a player to use that command!");
@@ -125,16 +132,23 @@ public class Main extends JavaPlugin implements Listener {
                 getPlugin().reloadConfig();
                 p.sendMessage(prefix + ChatColor.GREEN + "Set jail location!");
                 return true;
-            } else if (args[0].equalsIgnoreCase("reload") && (sender.hasPermission("mcauth.reload") || sender.isOp() || sender.hasPermission("mcauth.*"))) {
+            } else if (args[0].equalsIgnoreCase("reload")) {
+        		if (!(sender.hasPermission("mcauth.reload") || sender.isOp() || sender.hasPermission("mcauth.*"))) {
+					sender.sendMessage(prefix + ChatColor.RED + "I'm sorry, but you don't have permission to do that!");
+					return true;
+				}
                 getPlugin().saveConfig();
                 getPlugin().reloadConfig();
-                sender.sendMessage(ChatColor.GREEN + "Successfully reloaded McAuthenticator's config! (Restart the server if it doesn't take effect.)");
+                sender.sendMessage(prefix + ChatColor.GREEN + "Successfully reloaded McAuthenticator's config! (Restart the server if it doesn't take effect.)");
                 return true;
             } else {
-            	sender.sendMessage(ChatColor.RED + "Unknown message! Try using '/auth help' for help!");
+            	sender.sendMessage(prefix + ChatColor.RED + "Unknown message! Try using '/auth help' for help!");
             	return true;
 			}
-        }
+        } else {
+			sender.sendMessage(prefix + ChatColor.RED + "Unknown message! Try using '/auth help' for help!");
+			return true;
+		}
 
         return true;
     }
