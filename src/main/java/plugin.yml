@@ -1,0 +1,12 @@
+name: McAuth
+author: Mr_Rhetorical
+version: 1.0
+main: com.rhetorical.auth.Main
+description: Make your Minecraft sever extra secure!
+commands:
+  auth:
+    description: Base command for McAuth.
+    usage: /<command>
+  mcauth:
+    description: Base command for McAuth.
+    usage: /<command>
