@@ -3,6 +3,7 @@ package com.rhetorical.auth.request;
 import com.rhetorical.auth.AuthFile;
 import com.rhetorical.auth.Main;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -118,7 +119,7 @@ public class Request implements Listener {
         Player p = event.getPlayer();
 
         if (this.timesUp) {
-            p.sendMessage("§cTime is up to input your key! You must create a new request!");
+            p.sendMessage(Main.prefix + ChatColor.RED + "Time is up to input your key! You must create a new request!");
             resetPlayer(this.requester);
             if (Main.currentRequests.containsKey(p) && Main.currentRequests.get(p).equals(this)) {
                 Main.currentRequests.remove(this);
@@ -129,7 +130,7 @@ public class Request implements Listener {
         if (input.equals(this.key)) {
             if (!Main.authenticatedPlayers.contains(p))
                 Main.authenticatedPlayers.add(p);
-            requester.sendMessage("§aSuccessfully authenticated! You are now signed in.");
+            requester.sendMessage(Main.prefix + ChatColor.GREEN + "Successfully authenticated! You are now signed in.");
             this.authenticated = true;
             this.resetPlayer(this.requester);
             if (this.requestType == RequestType.SIGN_UP) {
@@ -149,16 +150,15 @@ public class Request implements Listener {
                 }
             }
 
-            if (Main.currentRequests.containsKey(this)){
-                Main.currentRequests.remove(this);
-            }
+			//noinspection SuspiciousMethodCalls
+			Main.currentRequests.remove(this);
 
             requestThread.stop();
 
             System.gc();
 
         } else {
-            requester.sendMessage("§cThat isn't the requested key! Send it again! (Key is CaSE SenSiTIVe)");
+            requester.sendMessage(Main.prefix + ChatColor.RED + "That isn't the requested key! Send it again! (Key is CaSE SenSiTIVe)");
         }
     }
 
@@ -172,20 +172,19 @@ public class Request implements Listener {
             int failedAttempts = 0;
             while(!email.send()) {
 
-                requester.sendMessage("§cConfirmation email failed to send! Attempting to resend. . .");
-                if (Main.currentRequests.containsKey(this)){
-                    Main.currentRequests.remove(this);
-                }
+                requester.sendMessage(Main.prefix + ChatColor.RED + "Confirmation email failed to send! Attempting to resend. . .");
+				//noinspection SuspiciousMethodCalls
+				Main.currentRequests.remove(this);
 
                 try{ TimeUnit.SECONDS.sleep(2L); } catch(Exception ignored) {}
 
                 failedAttempts++;
                 if(failedAttempts > 5) {
-                    Main.console.sendMessage("§cFailed to send confirmation email to " + requester.getDisplayName() + " " + failedAttempts + " times. Make sure that the email information is set up correctly for your email. If you're still having issues, use 'default' and 'default' for both username and password settings in the config.");
+                    Main.console.sendMessage(Main.prefix + ChatColor.RED +"Failed to send confirmation email to " + requester.getDisplayName() + " " + failedAttempts + " times. Make sure that the email information is set up correctly for your email. If you're still having issues, use 'default' and 'default' for both username and password settings in the config.");
                 }
             }
 
-            requester.sendMessage("§fConfirmation email sent! Check your email and input your key below: ");
+            requester.sendMessage(Main.prefix + ChatColor.GREEN + "Confirmation email sent! Check your email and input your key below: ");
 
 
 

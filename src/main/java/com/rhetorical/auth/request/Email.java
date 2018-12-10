@@ -1,6 +1,7 @@
 package com.rhetorical.auth.request;
 
 import com.rhetorical.auth.Main;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import javax.mail.Authenticator;
@@ -90,7 +91,7 @@ class Email {
 
             Transport.send(message);
         } catch(Exception e) {
-            Main.console.sendMessage("§cCould not send email authentication!");
+            Main.console.sendMessage(Main.prefix + ChatColor.RED + "Could not send email authentication!");
             e.printStackTrace();
             return false;
         }

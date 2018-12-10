@@ -2,6 +2,7 @@ package com.rhetorical.auth;
 
 import com.rhetorical.auth.request.Request;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -42,6 +43,7 @@ public class Main extends JavaPlugin implements Listener {
     public static HashMap<Player, Request> currentRequests = new HashMap<>();
     public static ArrayList<Player> authenticatedPlayers = new ArrayList<>();
 
+    public static String prefix = "" + ChatColor.BOLD + ChatColor.GOLD + "[" + ChatColor.WHITE + "McAuth" + ChatColor.WHITE	+ "]" + ChatColor.RESET;
     public static Plugin getPlugin() {
         return Bukkit.getServer().getPluginManager().getPlugin("E-2FA");
     }
@@ -71,55 +73,67 @@ public class Main extends JavaPlugin implements Listener {
         if (!label.equalsIgnoreCase("auth"))
             return false;
 
-        if (!(sender instanceof Player)) {
-            if (label.equalsIgnoreCase("reload")) {
-                getPlugin().saveConfig();
-                getPlugin().reloadConfig();
-                sender.sendMessage("§aSuccessfully reloaded McAuthenticator's config! (Restart the server if it doesn't take effect.)");
-            }
-            return true;
-        }
-
-        Player p = (Player) sender;
-
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("signUp")) {
+            	if (!(sender instanceof Player)) {
+            		sender.sendMessage("");
+            		return true;
+				}
+            	Player p = (Player) sender;
                 if (AuthFile.getData().contains(p.getName() + ".email")) {
-                    p.sendMessage("§cCan't sign up if you already have an account!");
-                    p.sendMessage("§cPlease sign in using your existing account's authenticator.");
-                    p.sendMessage("§cIf you can not access your email, please contact proof that it is your email,");
-                    p.sendMessage("§cAnd contact a server moderator or administrator.");
+                    p.sendMessage(prefix + ChatColor.RED + "Can't sign up if you already have an account!");
+                    p.sendMessage(ChatColor.RED + "Please sign in using your existing account's authenticator.");
+                    p.sendMessage(ChatColor.RED + "If you can not access your email, please contact proof that it is your email,");
+                    p.sendMessage(ChatColor.RED + "And contact a server moderator or administrator.");
                     return true;
                 }
 
                 Request r;
                 try {
                     if (AuthFile.contains(args[1])) {
-                        p.sendMessage("§cThere is already an account registered with that email address!");
+                        p.sendMessage(prefix + ChatColor.RED + "There is already an account registered with that email address!");
                         return true;
                     }
 
                     r = new Request(p, args[1], Request.RequestType.SIGN_UP);
                 } catch(Exception e) {
-                    p.sendMessage("§cIncorrect format! Correct format: \"/auth signUp {email}\"!");
+                    p.sendMessage(prefix + ChatColor.RED + "Incorrect format! Correct format: \"/auth signUp {email}\"!");
                     return true;
                 }
 
                 currentRequests.put(p, r);
-            } else if (args[0].equalsIgnoreCase("jail") && (p.hasPermission("mcauth.setjail") || p.isOp() || p.hasPermission("mcauth.*"))) {
+            } else if (args[0].equalsIgnoreCase("help") && (sender.hasPermission("mcauth.userHelp") || sender.isOp() || sender.hasPermission("mcauth.*"))) {
+            	sender.sendMessage(ChatColor.RED + "--===[ " + ChatColor.GOLD + ChatColor.BOLD + "E-2FA Help" + ChatColor.RESET + ChatColor.RED + " ]===--");
+            	sender.sendMessage("" + ChatColor.BOLD + ChatColor.WHITE + "[Page 1 of 1]");
+            	sender.sendMessage(ChatColor.GOLD + "'/auth signUp' " + ChatColor.WHITE + "-" + ChatColor.GREEN + " Allows you to sign up for an account on this server.");
+            	if (sender.hasPermission("mcauth.*") || sender.isOp()) {
+					sender.sendMessage(ChatColor.GOLD + "'/auth jail' " + ChatColor.WHITE + "-" + ChatColor.GREEN + " Sets the jail position for the plugin.");
+					sender.sendMessage(ChatColor.GOLD + "'/auth reload' " + ChatColor.WHITE + "-" + ChatColor.GREEN + " Reloads this plugin's config.");
+					return true;
+				}
+            	return true;
+			} else if (args[0].equalsIgnoreCase("jail") && (sender.hasPermission("mcauth.setjail") || sender.isOp() || sender.hasPermission("mcauth.*"))) {
+
+            	if (!(sender instanceof Player)) {
+            		sender.sendMessage(prefix + ChatColor.RED + "You must be a player to use that command!");
+            		return true;
+				}
+            	Player p = (Player) sender;
                 jailLocation = p.getLocation();
                 getPlugin().getConfig().set("jail_location", jailLocation);
                 getPlugin().saveConfig();
                 getPlugin().reloadConfig();
-                p.sendMessage("§aSet jail location!");
+                p.sendMessage(prefix + ChatColor.GREEN + "Set jail location!");
                 return true;
-            } else if (args[0].equalsIgnoreCase("reload") && (p.hasPermission("mcauth.reload") || p.isOp() || p.hasPermission("mcauth.*"))) {
-
+            } else if (args[0].equalsIgnoreCase("reload") && (sender.hasPermission("mcauth.reload") || sender.isOp() || sender.hasPermission("mcauth.*"))) {
                 getPlugin().saveConfig();
                 getPlugin().reloadConfig();
-                p.sendMessage("§aSuccessfully reloaded McAuthenticator's config! (Restart the server if it doesn't take effect.)");
+                sender.sendMessage(ChatColor.GREEN + "Successfully reloaded McAuthenticator's config! (Restart the server if it doesn't take effect.)");
                 return true;
-            }
+            } else {
+            	sender.sendMessage(ChatColor.RED + "Unknown message! Try using '/auth help' for help!");
+            	return true;
+			}
         }
 
         return true;
@@ -129,13 +143,13 @@ public class Main extends JavaPlugin implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
         String ip = p.getAddress().getAddress().getHostAddress();
-        console.sendMessage("§a" + p.getName() + " connected with ip: " + ip);
+        console.sendMessage(prefix + p.getName() + " connected with ip: " + ip);
         if (AuthFile.getData().contains(p.getName() + ".email")) {
 
             if (AuthFile.getData().contains(p.getName() + ".ips")) {
                 List<String> ipList = AuthFile.getData().getStringList(p.getName() + ".ips");
                 if (ipList.contains(ip)) {
-                    p.sendMessage("§aSigned in using recognized ip!");
+                    p.sendMessage(prefix + ChatColor.GRAY + "You signed in using a recognized ip.");
                     Main.authenticatedPlayers.add(p);
                     return;
                 }
@@ -147,14 +161,13 @@ public class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        p.sendMessage("§cYou haven't signed up for an account with this server yet!");
-        p.sendMessage("§cPlease use the command \"/auth signUp {email}\" to sign up for an account!");
+        p.sendMessage(prefix + ChatColor.RED + "You haven't signed up for an account with this server yet!");
+        p.sendMessage(prefix + ChatColor.RED + "Please use the command \"/auth signUp {email}\" to sign up for an account!");
     }
 
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
-        if (Main.authenticatedPlayers.contains(event.getPlayer()))
-            Main.authenticatedPlayers.remove(event.getPlayer());
+		Main.authenticatedPlayers.remove(event.getPlayer());
     }
 
     @EventHandler
