@@ -1,5 +1,5 @@
 name: McAuthenticator
-version: 1.0
+version: 1.0.0
 author: Mr_Rhetorical
 main: com.rhetorical.auth.Main
 commands:
